@@ -8,11 +8,9 @@
     tools:context=".MainActivity">
 
     <com.vnpttech.opengl.MGLSurfaceView
+        android:id="@+id/surface_view"
         android:layout_width="match_parent"
-        android:layout_height="276dp"
+        android:layout_height="276dp"/>
 
-        >
-
-    </com.vnpttech.opengl.MGLSurfaceView>
 
 </LinearLayout>

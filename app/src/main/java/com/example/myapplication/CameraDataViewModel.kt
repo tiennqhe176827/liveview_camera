@@ -4,22 +4,28 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.vnpttech.ipcamera.CameraCallback
 import com.vnpttech.ipcamera.Constants
 import com.vnpttech.ipcamera.VNPTCamera
+import kotlin.concurrent.thread
 
-class CameraDataViewModel(application: Application) : AndroidViewModel(application) {
+class CameraDataViewModel() : ViewModel() {
 
-    var dataVideo: MutableLiveData<DataClassReceiveFromCamera> = MutableLiveData()
+    var dataVideo: MutableLiveData<VideoDataReceiveFromCamera> = MutableLiveData()
     val camera = VNPTCamera("VNTTA-017700-GBSJY", "nPksh5p2")
     val TAG: String = "gia tri debug"
     var isConnect: Boolean = false
 
     fun initAndConnectCamera() {
+
+
         camera.init(object : CameraCallback {
             override fun onReceiveAudio(bytes: ByteArray, i: Int, i1: Int, i2: Int) {
                 Log.i(TAG, "onReceiveAudio: i=$i, i1=$i1, i2=$i2, bytes size=${bytes.size}")
             }
+
 
             override fun onReceiveVideo(
                 bytes: ByteArray,
@@ -35,18 +41,30 @@ class CameraDataViewModel(application: Application) : AndroidViewModel(applicati
                 Log.d(TAG, "  - bytes1 size: ${bytes1.size}")
                 Log.d(TAG, "  - bytes2 size: ${bytes2.size}")
                 Log.d(TAG, "  - i=$i, i1=$i1, i2=$i2, i3=$i3")
-                var data: DataClassReceiveFromCamera =
-                    DataClassReceiveFromCamera(bytes, bytes1, bytes2, i, i1)
+
+                // Tạo data object
+                val data = VideoDataReceiveFromCamera(bytes, bytes1, bytes2, i, i1)
+
+                // Đẩy lên LiveData từ background thread
+                thread(start = true) {
+                    dataVideo.postValue(data)
+                }
+
+
             }
 
             override fun onConnect(i: Int, command: Constants.Command, status: Int) {
                 //Log.d(TAG, "onConnect: i=$i, command=${command.name}, i1=$status")
                 //0 is success,another is error
+                //ết nối thành công mới cho phép hiển thị dữ liệu ko
                 if (status == 0) {
                     isConnect = true
+                    camera.setVideo(isConnect);
+                    camera.setAudio(isConnect)
                 } else {
                     isConnect = false
                 }
+
             }
 
             override fun onConnectionLoss(i: Int, command: Constants.Command) {
@@ -76,7 +94,9 @@ class CameraDataViewModel(application: Application) : AndroidViewModel(applicati
                 )
             }
         })
+
         camera.connect(285350, Char(0x7A))
+
     }
 
 
