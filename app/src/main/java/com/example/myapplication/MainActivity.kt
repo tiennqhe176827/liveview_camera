@@ -1,5 +1,7 @@
 package com.example.myapplication
 
+import android.media.AudioFormat
+import android.media.AudioManager
 import android.media.AudioTrack
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +24,8 @@ class MainActivity : AppCompatActivity() {
     private val TAG: String = "gia tri debug"
     private lateinit var mglSurfaceView: MGLSurfaceView
     private lateinit var cameraViewModel: CameraDataViewModel
+    private lateinit var audioTrack: AudioTrack
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,12 +37,35 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+
+        // Initialize AudioTrack
+        val sampleRateInHz = 8000 // Change this if your camera provides different audio sample rate
+        val channelConfig = AudioFormat.CHANNEL_OUT_MONO
+        val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+        val bufferSize = AudioTrack.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat)
+
+        audioTrack = AudioTrack(
+
+            AudioManager.STREAM_MUSIC,
+            sampleRateInHz,
+            channelConfig,
+            audioFormat,
+            bufferSize,
+            AudioTrack.MODE_STREAM
+        )
+
+        audioTrack.play()
+
+
         mglSurfaceView = findViewById(R.id.surface_view)
 
 
 
         cameraViewModel = CameraDataViewModel()
         cameraViewModel.initAndConnectCamera()
+
+
 
         cameraViewModel.dataVideo.observe(this, Observer { videoData ->
             mglSurfaceView.setYUVData(
@@ -48,10 +75,23 @@ class MainActivity : AppCompatActivity() {
                 videoData.byteArray_Data_fu,
                 videoData.byteArray_Data_fv
             )
+
+
+
+
             mglSurfaceView.requestRender()
         })
+
+        cameraViewModel.dataAudio.observe(this, Observer { audioData ->
+            audioTrack.write(
+                audioData.buf, 0, audioData.length
+            )
+
+
+        })
+
     }
 
 
-    }
+}
 

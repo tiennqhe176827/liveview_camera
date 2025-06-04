@@ -14,6 +14,8 @@ import kotlin.concurrent.thread
 class CameraDataViewModel() : ViewModel() {
 
     var dataVideo: MutableLiveData<VideoDataReceiveFromCamera> = MutableLiveData()
+    var dataAudio: MutableLiveData<AudioDataReceiveFromCamera> = MutableLiveData()
+
     val camera = VNPTCamera("VNTTA-017700-GBSJY", "nPksh5p2")
     val TAG: String = "gia tri debug"
     var isConnect: Boolean = false
@@ -22,8 +24,15 @@ class CameraDataViewModel() : ViewModel() {
 
 
         camera.init(object : CameraCallback {
+
+
             override fun onReceiveAudio(bytes: ByteArray, i: Int, i1: Int, i2: Int) {
                 Log.i(TAG, "onReceiveAudio: i=$i, i1=$i1, i2=$i2, bytes size=${bytes.size}")
+
+                var data= AudioDataReceiveFromCamera(bytes,i)
+                thread(start = true) {
+                    dataAudio.postValue(data)
+                }
             }
 
 
