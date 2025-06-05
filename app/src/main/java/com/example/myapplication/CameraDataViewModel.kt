@@ -20,8 +20,15 @@ class CameraDataViewModel() : ViewModel() {
     val TAG: String = "gia tri debug"
     var isConnect: Boolean = false
 
-    fun initAndConnectCamera() {
+    fun resetCameraPosition() {
+        camera.resetPTZ("")
+    }
 
+    fun setCameraPosition(l: Int, r: Int, u: Int, d: Int) {
+        camera.setRunPTZ(l, r, u, d)
+    }
+
+    fun initAndConnectCamera() {
 
         camera.init(object : CameraCallback {
 
@@ -29,7 +36,7 @@ class CameraDataViewModel() : ViewModel() {
             override fun onReceiveAudio(bytes: ByteArray, i: Int, i1: Int, i2: Int) {
                 Log.i(TAG, "onReceiveAudio: i=$i, i1=$i1, i2=$i2, bytes size=${bytes.size}")
 
-                var data= AudioDataReceiveFromCamera(bytes,i)
+                var data = AudioDataReceiveFromCamera(bytes, i)
                 thread(start = true) {
                     dataAudio.postValue(data)
                 }
@@ -70,6 +77,8 @@ class CameraDataViewModel() : ViewModel() {
                     isConnect = true
                     camera.setVideo(isConnect);
                     camera.setAudio(isConnect)
+
+
                 } else {
                     isConnect = false
                 }
@@ -82,9 +91,11 @@ class CameraDataViewModel() : ViewModel() {
 
             override fun onCommandSet(command: Constants.Command, i: Int) {
                 Log.d(TAG, "onCommandSet: command=${command.name}, i=$i")
+
             }
 
             override fun onCommandGet(command: Constants.Command, i: Int, i1: Int, s: String?) {
+
                 Log.d(TAG, "onCommandGet: command=${command.name}, i=$i, i1=$i1, s=$s")
             }
 

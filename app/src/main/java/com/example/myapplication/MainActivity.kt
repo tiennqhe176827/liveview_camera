@@ -5,6 +5,7 @@ import android.media.AudioManager
 import android.media.AudioTrack
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,6 +24,14 @@ class MainActivity : AppCompatActivity() {
 
     private val TAG: String = "gia tri debug"
     private lateinit var mglSurfaceView: MGLSurfaceView
+
+    private lateinit var buttonReset: Button
+    private lateinit var buttonTurnLeft: Button
+    private lateinit var buttonTurnRight: Button
+    private lateinit var buttonTurnUp: Button
+    private lateinit var buttonTurnDown: Button
+
+
     private lateinit var cameraViewModel: CameraDataViewModel
     private lateinit var audioTrack: AudioTrack
 
@@ -37,6 +46,8 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        cameraViewModel = CameraDataViewModel()
 
 
         // Initialize AudioTrack
@@ -62,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        cameraViewModel = CameraDataViewModel()
+
         cameraViewModel.initAndConnectCamera()
 
 
@@ -89,6 +100,35 @@ class MainActivity : AppCompatActivity() {
 
 
         })
+
+        buttonReset = findViewById(R.id.btn_reset)
+        buttonTurnUp = findViewById(R.id.btn_up)
+        buttonTurnDown = findViewById(R.id.btn_down)
+        buttonTurnLeft = findViewById(R.id.btn_left)
+        buttonTurnRight = findViewById(R.id.btn_right)
+
+        buttonReset.setOnClickListener {
+            cameraViewModel.resetCameraPosition()
+
+        }
+
+        buttonTurnLeft.setOnClickListener {
+            cameraViewModel.setCameraPosition(1,-1,-1,-1)
+
+        }
+        buttonTurnRight.setOnClickListener {
+            cameraViewModel.setCameraPosition(-1,1,-1,-1)
+
+        }
+        buttonTurnUp.setOnClickListener {
+
+            cameraViewModel.setCameraPosition(-1,-1,1,-1)
+
+        }
+        buttonTurnDown.setOnClickListener {
+            cameraViewModel.setCameraPosition(-1,-1,-1,1)
+
+        }
 
     }
 

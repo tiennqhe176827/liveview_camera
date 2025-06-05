@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -12,5 +13,65 @@
         android:layout_width="match_parent"
         android:layout_height="276dp"/>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal">
+
+        <!-- Nút lên -->
+        <Button
+            android:id="@+id/btn_up"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="↑"
+            android:layout_gravity="center_horizontal" />
+
+        <!-- Hàng giữa: trái - khoảng trống - phải -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btn_left"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:text="←" />
+
+            <!-- Ô trống ở giữa -->
+            <View
+                android:layout_width="60dp"
+                android:layout_height="60dp" />
+
+            <Button
+                android:id="@+id/btn_right"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:text="→" />
+        </LinearLayout>
+
+        <!-- Nút xuống -->
+        <Button
+            android:id="@+id/btn_down"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="↓"
+            android:layout_gravity="center_horizontal" />
+    </LinearLayout>
+
+    <!-- Nút reset vị trí -->
+    <Button
+        android:id="@+id/btn_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vị trí mặc định"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center_horizontal" />
 
 </LinearLayout>
+
