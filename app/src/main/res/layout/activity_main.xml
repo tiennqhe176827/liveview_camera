@@ -8,10 +8,31 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.vnpttech.opengl.MGLSurfaceView
-        android:id="@+id/surface_view"
+<!--    <com.vnpttech.opengl.MGLSurfaceView-->
+<!--        android:id="@+id/surface_view"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="276dp"-->
+<!--        />-->
+
+
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="276dp"/>
+        android:layout_height="276dp">
+
+        <com.vnpttech.opengl.MGLSurfaceView
+            android:id="@+id/surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <ImageView
+            android:id="@+id/camera_off_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:src="@drawable/camera_off"/>
+    </FrameLayout>
+
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -20,7 +41,7 @@
         android:layout_marginTop="16dp"
         android:layout_gravity="center_horizontal">
 
-        <!-- Nút lên -->
+
         <Button
             android:id="@+id/btn_up"
             android:layout_width="60dp"
@@ -72,6 +93,24 @@
         android:text="Vị trí mặc định"
         android:layout_marginTop="12dp"
         android:layout_gravity="center_horizontal" />
+
+
+    <Button
+        android:id="@+id/btn_sendAudioToCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nói chuyện qua camera"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:id="@+id/btn_turnOnOrOff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center_horizontal" />
+
 
 </LinearLayout>
 

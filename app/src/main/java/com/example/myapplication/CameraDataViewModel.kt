@@ -17,8 +17,32 @@ class CameraDataViewModel() : ViewModel() {
     var dataAudio: MutableLiveData<AudioDataReceiveFromCamera> = MutableLiveData()
 
     val camera = VNPTCamera("VNTTA-017700-GBSJY", "nPksh5p2")
-    val TAG: String = "gia tri debug"
+    val TAG: String = "NQT"
     var isConnect: Boolean = false
+
+
+    fun turnCameraOnOrOff(bool: Boolean) {
+
+        if(bool==false){
+            camera.setVideo(false)
+            camera.setAudio(false)
+
+        }
+        else{
+            camera.setVideo(true)
+            camera.setAudio(true)
+        }
+
+    }
+
+    fun sendAudio(buf: ByteArray, len: Int, codec: Int) {
+        Log.i(TAG, "bắt đầu sentAudio")
+
+        camera.startSendAudio()
+        camera.pushAudio(buf, len, 1)
+
+    }
+
 
     fun resetCameraPosition() {
         camera.resetPTZ("")
@@ -60,6 +84,7 @@ class CameraDataViewModel() : ViewModel() {
 
                 // Tạo data object
                 val data = VideoDataReceiveFromCamera(bytes, bytes1, bytes2, i, i1)
+
 
                 // Đẩy lên LiveData từ background thread
                 thread(start = true) {
