@@ -112,5 +112,15 @@
         android:layout_gravity="center_horizontal" />
 
 
-</LinearLayout>
+    <Spinner
+        android:id="@+id/spinner_videoQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_gravity="center_horizontal"
+        >
 
+    </Spinner>
+
+
+</LinearLayout>

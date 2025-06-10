@@ -21,11 +21,17 @@ class CameraDataViewModel() : ViewModel() {
     var isConnect: Boolean = false
 
 
+    fun changeQuantity(mode: Int){
+        camera.setVideoQuality(mode,-1)
+      //  print( " chế độ chọn lại chất lượng "+camera.setVideoQuality(mode,-1))
+    }
+
     fun turnCameraOnOrOff(bool: Boolean) {
 
         if(bool==false){
             camera.setVideo(false)
             camera.setAudio(false)
+
 
         }
         else{

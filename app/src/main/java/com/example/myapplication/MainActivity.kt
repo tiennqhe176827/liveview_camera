@@ -3,15 +3,19 @@ package com.example.myapplication
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.AudioFormat
+import android.media.AudioManager
 import android.media.AudioRecord
 import android.media.AudioTrack
-import android.media.AudioManager
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -19,8 +23,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
-import com.vnpttech.ipcamera.Constants
-import com.vnpttech.ipcamera.VNPTCamera
 import com.vnpttech.opengl.MGLSurfaceView
 import kotlin.concurrent.thread
 
@@ -46,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     private var isRecording = false
     private lateinit var audioRecord: AudioRecord
 
+
     private fun checkAndRequestAudioPermission(): Boolean {
         return if (ContextCompat.checkSelfPermission(
                 this,
@@ -59,6 +62,49 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == audioRequestCode && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "Audio permission granted")
+        } else {
+            Log.e(TAG, "Audio permission denied")
+        }
+    }
+
+    private fun startAudioCaptureAndSend() {
+        val sampleRate = 8000
+        val channelConfig = AudioFormat.CHANNEL_IN_MONO
+        val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+        val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
+
+        audioRecord = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            sampleRate,
+            channelConfig,
+            audioFormat,
+            bufferSize
+        )
+
+        val audioBuffer = ByteArray(bufferSize)
+
+        audioRecord.startRecording()
+        isRecording = true
+
+        thread(start = true) {
+            while (isRecording) {
+                val readLen = audioRecord.read(audioBuffer, 0, bufferSize)
+                if (readLen > 0) {
+
+                    cameraViewModel.sendAudio(audioBuffer, readLen, 1)
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -69,6 +115,17 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        ////
+        val items = arrayOf<String?>("1920x1880", "1280x720", "640x480")
+
+        val spinner: Spinner = findViewById(R.id.spinner_videoQuantity)
+
+        val arrayAdapter= ArrayAdapter(this,android.R.layout.simple_spinner_item,items)
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        spinner.adapter = arrayAdapter
+        ////
 
         cameraViewModel = CameraDataViewModel()
 
@@ -129,6 +186,7 @@ class MainActivity : AppCompatActivity() {
         }
         buttonTurnUp.setOnClickListener {
             cameraViewModel.setCameraPosition(-1, -1, 1, -1)
+
         }
         buttonTurnDown.setOnClickListener {
             cameraViewModel.setCameraPosition(-1, -1, -1, 1)
@@ -141,7 +199,12 @@ class MainActivity : AppCompatActivity() {
                     buttonSendAudio.text = "Stop Audio"
                 }
             } else {
-                stopAudioCapture()
+                //  stopAudioCapture()
+
+                isRecording = false
+                audioRecord.stop()
+                audioRecord.release()
+
                 buttonSendAudio.text = "Send Audio To Camera"
             }
         }
@@ -155,12 +218,11 @@ class MainActivity : AppCompatActivity() {
         buttonCameraOnOff.setOnClickListener {
 
             isCameraOn = !isCameraOn
-            if(isCameraOn==true){
+            if (isCameraOn == true) {
                 buttonCameraOnOff.setText("tạm dừng camera")
                 mglSurfaceView.visibility = View.VISIBLE
                 cameraOffImage.visibility = View.GONE
-            }
-            else{
+            } else {
                 buttonCameraOnOff.setText("tiếp tục camera")
                 mglSurfaceView.visibility = View.GONE
                 cameraOffImage.visibility = View.VISIBLE
@@ -168,54 +230,39 @@ class MainActivity : AppCompatActivity() {
             cameraViewModel.turnCameraOnOrOff(isCameraOn)
         }
 
-    }
-
-    private fun startAudioCaptureAndSend() {
-        val sampleRate = 8000
-        val channelConfig = AudioFormat.CHANNEL_IN_MONO
-        val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-        val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
-
-        audioRecord = AudioRecord(
-            MediaRecorder.AudioSource.MIC,
-            sampleRate,
-            channelConfig,
-            audioFormat,
-            bufferSize
-        )
-
-        val audioBuffer = ByteArray(bufferSize)
-
-        audioRecord.startRecording()
-        isRecording = true
-
-        thread(start = true) {
-            while (isRecording) {
-                val readLen = audioRecord.read(audioBuffer, 0, bufferSize)
-                if (readLen > 0) {
-
-                    cameraViewModel.sendAudio(audioBuffer, readLen, 1)
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val selection=parent?.getItemAtPosition(position).toString()
+                Toast.makeText(this@MainActivity,selection, Toast.LENGTH_LONG).show()
+                var mode:Int=0;
+                if(selection.equals("1920x1880")){
+                    mode=0
                 }
+                if(selection.equals("1280x720")){
+                    mode=1
+                }
+                if(selection.equals("640x480")){
+                    mode=2
+                }
+
+                cameraViewModel.changeQuantity(mode)
+
             }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
         }
+
+
+
     }
 
-    private fun stopAudioCapture() {
-        isRecording = false
-        audioRecord.stop()
-        audioRecord.release()
-    }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == audioRequestCode && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Audio permission granted")
-        } else {
-            Log.e(TAG, "Audio permission denied")
-        }
-    }
 }
